@@ -1,0 +1,43 @@
+<?php
+require('tools/db.php');
+$conn = new mysqli($servername, $username, $password, $database);
+
+$sql    = "SELECT * FROM substitutions WHERE date = (SELECT date FROM substitutions ORDER BY date DESC LIMIT 1) ORDER BY grade ASC;";
+$result = $conn->query($sql);
+$substitutions = $result->fetch_all(MYSQLI_ASSOC);
+$conn->close();
+
+//Find latest date
+$date = $substitutions[0]["date"];
+$displaydate = date("d.m.Y", strtotime($date));
+?>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">KGS Vertretungsplan am <?php echo $displaydate; ?> </a>
+</nav>
+<table class="table table-hover table-dark table-bordered">
+  <thead>
+    <tr>
+      <th scope="col">Klasse</th>
+      <th scope="col">Stunde</th>
+      <th scope="col">Fach</th>
+      <th scope="col">Raum</th>
+      <th scope="col">Info</th>
+    </tr>
+  </thead>
+  <tbody>
+	<?php
+	foreach ($substitutions as $substitution) {
+		echo "<tr><td>".$substitution["grade"]."</td><td>".$substitution["lesson"]."</td><td>".$substitution["subject"]."</td><td>".$substitution["room"]."</td><td>".$substitution["info"]."</td></tr>\n";
+	}
+	?>
+  </tbody>
+</table>
+</body>
+</html>
